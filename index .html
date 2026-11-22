@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="הקליניקה"><link rel=preconnect href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700&display=swap" rel=stylesheet><title>ניהול קליניקה</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--cream:#F5EFE6;--beige:#E4D5C3;--mocha:#B99B7B;--coffee:#76543D;--espresso:#3F3028;--white:#FFFFFF;
+--danger:#A4453A;--ok:#6BBF8E;--warn:#F2B35E;--bad:#E27D7D;--shadow:rgba(63,48,40,.08);--overlay:rgba(63,48,40,.5);
+--muted:color-mix(in srgb,var(--coffee) 88%,var(--cream));--soft:color-mix(in srgb,var(--cream) 14%,transparent)}
+@media print{:root{--cream:#FFFFFF;--coffee:#000000;--espresso:#000000}}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Heebo,Assistant,-apple-system,"Segoe UI",Arial,sans-serif;font-weight:400;background:var(--cream);color:var(--coffee);padding:env(safe-area-inset-top) 0 calc(70px + env(safe-area-inset-bottom))}
+.w{max-width:880px;margin:0 auto;padding:18px 16px}
+h2{font-size:22px;font-weight:700;color:var(--espresso);margin:6px 0 14px}
+h3{margin:18px 0 8px;font-size:16px;font-weight:600;color:var(--espresso);padding-right:10px;border-right:3px solid var(--mocha)}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--beige);border-radius:12px;background:var(--white);color:var(--coffee);margin:4px 0 12px;font-size:16px}
+button{border:0;border-radius:24px;padding:10px 20px;background:var(--coffee);color:var(--cream);cursor:pointer;font-weight:600}
+button.o{background:none;border:1px solid var(--coffee);color:var(--coffee)}button.d{background:var(--danger);color:var(--cream)}
+button:disabled{opacity:.5}:focus-visible{outline:2px solid var(--mocha);outline-offset:2px}
+@media(hover:hover){button:hover{background:var(--espresso)}button.o:hover{background:var(--beige)}button.d:hover{background:var(--espresso)}nav button:hover:not(.on){background:var(--soft)}nav .on:hover{background:var(--coffee)}}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.nv{display:flex;justify-content:space-between;align-items:center;gap:6px}.nv h2{margin:0;text-align:center;font-size:19px}
+.card{background:var(--white);border-radius:16px;padding:16px;margin:10px 0;border:1px solid var(--beige);box-shadow:0 2px 8px var(--shadow)}
+.it{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--beige);cursor:pointer}
+.pill{margin:4px;padding:9px 18px}
+.st{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.st .card{margin:0}
+.sc{position:relative}.sc .t{font-size:13px;color:var(--muted);margin-bottom:4px}.sc .n{font-size:30px;font-weight:700;color:var(--espresso);line-height:1.2}.sc svg{position:absolute;left:14px;top:14px;color:var(--mocha)}
+.tg{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;color:var(--espresso)}
+.tg.ok{background:var(--ok)}.tg.wa{background:var(--warn)}.tg.no{background:var(--bad)}
+.ar{display:flex;align-items:center;gap:12px;background:var(--white);border-radius:14px;padding:12px 14px;margin:8px 0;border-right:4px solid var(--beige);box-shadow:0 1px 4px var(--shadow);cursor:pointer}
+.ar b{font-weight:700;color:var(--espresso);min-width:46px}.ar .g{flex:1}.ar.ok{border-color:var(--ok)}.ar.wa{border-color:var(--warn)}.ar.no{border-color:var(--bad)}
+nav{position:fixed;bottom:0;right:0;left:0;display:flex;background:var(--espresso);padding:4px 4px calc(4px + env(safe-area-inset-bottom));gap:2px}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;color:var(--cream);border-radius:12px;padding:7px 2px;font-size:10px;font-weight:400;line-height:1.1}
+nav .on{background:var(--coffee);font-weight:600}nav .f{display:none}.lgo{display:none}
+@media(min-width:900px){body{padding:0 250px 24px 0}
+nav{top:0;left:auto;width:250px;flex-direction:column;padding:22px 14px;gap:6px}
+nav button{flex-direction:row;gap:12px;font-size:16px;padding:12px 14px;text-align:right;justify-content:flex-start}nav .f{display:inline}nav .s{display:none}
+.lgo{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--cream);font-weight:700;font-size:19px;padding:6px 8px 20px;margin-bottom:12px;border-bottom:1px solid var(--soft);text-align:center}
+.lgo img{max-width:150px;max-height:64px;filter:invert(1);mix-blend-mode:screen}.fab{bottom:28px!important}}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;margin-top:10px}
+.c{min-height:64px;background:var(--white);border-radius:10px;padding:2px;font-size:10px;position:relative;cursor:pointer;border:1px solid var(--beige)}
+.c b{display:block;font-size:18px;font-weight:700;color:var(--espresso);margin:2px auto;width:28px;height:28px;line-height:28px;border-radius:50%}
+.c.t b{background:var(--coffee);color:var(--cream)}.c.s{outline:2px solid var(--mocha)}.c.x{background:var(--beige)}
+.c i{font-style:normal;color:var(--muted);display:block}.c u{text-decoration:none;color:var(--coffee);font-weight:600;display:block;line-height:1.1}
+.c em{position:absolute;bottom:3px;left:50%;width:6px;height:6px;border-radius:50%;background:var(--mocha)}
+.hd{color:var(--muted);font-size:12px;font-weight:600}
+.fab{position:fixed;left:18px;bottom:calc(84px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;font-size:30px;padding:0;box-shadow:0 4px 12px var(--overlay)}
+.mo{position:fixed;inset:0;background:var(--overlay);z-index:9;overflow:auto}.mo>div{background:var(--cream);margin:5vh auto;max-width:560px;border-radius:18px;padding:18px;width:94%}
+.big{font-size:22px;font-weight:700;color:var(--espresso)}.m{color:var(--muted);font-size:13px}.ph{width:100%;border-radius:12px}
+#pr{display:none}
+@media print{body>*:not(#pr){display:none!important}#pr{display:block;padding:20px}table{width:100%;border-collapse:collapse;margin-bottom:12px}td,th{border:1px solid currentColor;padding:5px;text-align:right}}
+</style></head><body><div id=app></div><div id=pr></div>
+<script>
+const S=supabase.createClient('https://qooxzwhqggpgrycchrqe.supabase.co','sb_publishable_09jEty9_v-3TWGw37kYyNg_UHhrvfKw'),
+$=i=>document.getElementById(i),pad=n=>String(n).padStart(2,'0'),
+ds=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,td=ds(new Date()),
+e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+nf=n=>'₪'+(Math.round(n*100)/100).toLocaleString('he-IL'),fd=s=>s.split('-').reverse().join('/'),
+gm=n=>{if(n==15)return'ט״ו';if(n==16)return'ט״ז';const x=['','י','כ','ל'][Math.floor(n/10)]+['','א','ב','ג','ד','ה','ו','ז','ח','ט'][n%10];return x.length>1?x.slice(0,-1)+'״'+x.slice(-1):x+'׳'},
+hd=d=>gm(+new Intl.DateTimeFormat('en-u-ca-hebrew',{day:'numeric'}).format(d)),
+hm=d=>new Intl.DateTimeFormat('he-u-ca-hebrew',{month:'long'}).format(d),
+inc=a=>a.payment_status=='שולם'?+a.price:a.payment_status=='שולם חלקית'?(+a.partial_amount||0):0,
+dbt=a=>a.payment_status=='שולם'?0:a.payment_status=='שולם חלקית'?a.price-(a.partial_amount||0):+a.price,
+cn=id=>{const c=D.clients.find(x=>x.id==id);return c&&!c.is_deleted?c.name:'לקוחה שנמחקה'},
+M=h=>{const d=document.createElement('div');d.className='mo';d.id='md';d.innerHTML='<div>'+h+'</div>';document.body.appendChild(d)},
+cl=()=>{const m=$('md');m&&m.remove()},
+big=u=>M(`<img class=ph src="${u}"><br><br><button onclick=cl()>סגירה</button>`);
+const IC={dash:'<rect x=3 y=3 width=7 height=9 rx=1.5 /><rect x=14 y=3 width=7 height=5 rx=1.5 /><rect x=14 y=12 width=7 height=9 rx=1.5 /><rect x=3 y=16 width=7 height=5 rx=1.5 />',
+cal:'<rect x=3 y=4 width=18 height=17 rx=2 /><path d="M16 2v4M8 2v4M3 10h18" />',
+usr:'<circle cx=9 cy=8 r=3.5 /><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5" /><path d="M16 4.7a3.5 3.5 0 010 6.6M18.5 15.3c1.6.7 2.6 2.2 3 4.7" />',
+spk:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /><path d="M19 16v4M17 18h4" />',
+wal:'<rect x=3 y=6 width=18 height=13 rx=2 /><path d="M3 10h18M16 15h2" />',
+set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10" /><circle cx=16 cy=7 r=2 /><circle cx=8 cy=17 r=2 />'},
+ic=n=>`<svg viewBox="0 0 24 24" width=20 height=20 fill=none stroke=currentColor stroke-width=1.5 stroke-linecap=round stroke-linejoin=round>${IC[n]}</svg>`,
+sc=s=>s=='שולם'?'ok':s=='לא שולם'?'no':'wa',
+stg=s=>`<span class="tg ${sc(s)}">${s}</span>`,
+aRow=a=>`<div class="ar ${sc(a.payment_status)}" onclick="openAp('${a.id}')"><b>${a.appt_time.slice(0,5)}</b><span class=g>${e(cn(a.client_id))}<br><span class=m>${e(a.treatment_name)}</span></span>${stg(a.payment_status)}</div>`;
+async function lgo(){const el=$('lgi');if(!el||!D.st.logo_path)return;
+ if(!V.lu||Date.now()-V.lt>3e6){const{data}=await S.storage.from('clinic-files').createSignedUrl(D.st.logo_path,3600);if(!data)return;V.lu=data.signedUrl;V.lt=Date.now()}
+ el.src=V.lu;el.style.display='block'}
+let D={clients:[],tr:[],ap:[],ex:[],st:{},ps:[]},V={tab:'home',m:new Date(),sel:td,rp:'inc',pm:'month',pd:new Date(),q:'',cid:null},HC={};
+
+async function load(){
+ const q=t=>S.from(t).select('*').range(0,9999),
+ [a,b,c,d,f,g]=await Promise.all([q('clients').order('name'),q('treatments').order('sort_order'),q('appointments').order('appt_date').order('appt_time'),q('expenses').order('expense_date'),S.from('settings').select('*').eq('id',1).single(),q('photo_sets').order('created_at',{ascending:false})]);
+ D={clients:a.data||[],tr:b.data||[],ap:c.data||[],ex:d.data||[],st:f.data||{},ps:g.data||[]}}
+const XM=/שואה|חללי|עצמאות|ירושלים/,ch=d=>{for(let k=0;k<8;k++){const p=new Intl.DateTimeFormat('en-u-ca-hebrew',{day:'numeric',month:'long'}).format(new Date(d.getFullYear(),d.getMonth(),d.getDate()-k));if(/Kislev/.test(p)&&+p.match(/\d+/)[0]==25)return k+1}return 0};
+const XH=/שמירת|רבין|סיגד|גוריון|חג הבנות|השפה העברית|יום המשפחה|העלי|בכורות|הרצל|בוטינסקי|מעשר בהמה/;
+async function hol(y){if(HC[y])return;const c=localStorage['h4'+y];if(c){HC[y]=JSON.parse(c);return}
+ try{const r=await fetch(`https://www.hebcal.com/hebcal?v=1&cfg=json&year=${y}&month=x&maj=on&min=on&mod=on&nx=on&mf=on&i=on&lg=h`),j=await r.json(),o={};
+ j.items.forEach(i=>{let t=i.title.replace(/[\u0591-\u05C7]/g,'');if(XH.test(t)||(i.subcat=='modern'&&!XM.test(t)))return;const k=i.date.slice(0,10);if(/חנוכה/.test(t)){const n=ch(new Date(k+'T12:00'));if(!n)return;t=gm(n)+' חנוכה'}t=t.replace(/\s*\d{4}$/,'');if((o[k]=o[k]||[]).includes(t))return;o[k].push(t)});HC[y]=o;localStorage['h4'+y]=JSON.stringify(o)}catch(x){HC[y]={}}}
+
+async function init(){const{data}=await S.auth.getSession();data.session?start():login()}
+function login(){$('app').innerHTML=`<div class=w><h2>כניסה למערכת</h2><input id=em type=email placeholder="אימייל" autocomplete=username><div style="position:relative"><input id=pw type=password placeholder="סיסמה" autocomplete=current-password><button type=button class=o style="position:absolute;left:6px;top:9px;padding:4px 12px" onclick="pw.type=pw.type=='password'?'text':'password'" aria-label="הצגת סיסמה">👁</button></div><button onclick=doLogin()>כניסה</button><p id=er class=m></p></div>`}
+async function doLogin(){er.textContent='מתחבר...';try{const{error}=await S.auth.signInWithPassword({email:em.value.trim(),password:pw.value});error?er.textContent=error.message=='Invalid login credentials'?'אימייל או סיסמה שגויים':'שגיאה: '+error.message:start()}catch(x){er.textContent='שגיאה: '+x.message}}
+async function start(){await load();render()}
+function render(){
+ const T=[['home','לוח בקרה','לוח','dash'],['cal','יומן תורים','יומן','cal'],['cl','ניהול לקוחות','לקוחות','usr'],['tr','שירותים ומחירון','שירותים','spk'],['rp','הכנסות והוצאות','כספים','wal'],['st','הגדרות','הגדרות','set']];
+ $('app').innerHTML=`<div class=w id=pg></div><nav><div class=lgo><img id=lgi alt="" style="display:none"><span>${e(D.st.clinic_name||'הקליניקה')}</span></div>${T.map(t=>`<button class="${V.tab==t[0]?'on':''}" onclick="V.tab='${t[0]}';V.cid=null;render()">${ic(t[3])}<span class=f>${t[1]}</span><span class=s>${t[2]}</span></button>`).join('')}</nav>`;
+ ({home:vHome,cal:vCal,cl:vCl,tr:vTr,rp:vRp,st:vSt})[V.tab]();lgo()}
+
+/* ---------- ראשי ---------- */
+function vHome(){const mo=td.slice(0,7),L=D.ap.filter(a=>a.appt_date==td),I=D.ap.filter(a=>a.appt_date.startsWith(mo)).reduce((s,a)=>s+inc(a),0),N=D.clients.filter(c=>!c.is_deleted&&(c.created_at||'').startsWith(mo)).length;
+ $('pg').innerHTML=`<h2>לוח בקרה</h2><div class=st><div class="card sc">${ic('cal')}<div class=t>תורים היום</div><div class=n>${L.length}</div></div><div class="card sc">${ic('wal')}<div class=t>הכנסות החודש</div><div class=n>${nf(I)}</div></div><div class="card sc">${ic('usr')}<div class=t>לקוחות חדשים החודש</div><div class=n>${N}</div></div></div>
+<h3>התורים של היום</h3>${L.map(aRow).join('')||'<p class=m>אין תורים להיום</p>'}<button class=fab onclick="V.sel=td;openAp()">+</button>`}
+
+/* ---------- יומן ---------- */
+const mv=n=>{V.m=new Date(V.m.getFullYear(),V.m.getMonth()+n,1);vCal()};
+async function vCal(){
+ const m=V.m,y=m.getFullYear(),mo=m.getMonth(),f=new Date(y,mo,1),l=new Date(y,mo+1,0),w=D.st.working_hours||{};
+ await hol(y);if(V.tab!='cal')return;const H=HC[y]||{};
+ let c=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'].map(x=>`<div class=hd>יום ${x}</div>`).join('')+'<div></div>'.repeat(f.getDay());
+ for(let i=1;i<=l.getDate();i++){const d=new Date(y,mo,i),k=ds(d),h=H[k]||[],x=w[d.getDay()];
+  c+=`<div class="c${k==td?' t':''}${k==V.sel?' s':''}${x&&!x.active?' x':''}" onclick="V.sel='${k}';vCal()"><i>${hd(d)}</i><b>${i}</b>${h.slice(0,2).map(t=>`<u>${e(t)}</u>`).join('')}${D.ap.some(a=>a.appt_date==k)?'<em></em>':''}</div>`}
+ const sd=new Date(V.sel+'T12:00'),hs=(HC[V.sel.slice(0,4)]||{})[V.sel]||[],L=D.ap.filter(a=>a.appt_date==V.sel);
+ $('pg').innerHTML=`<div class=nv><button class=o onclick=mv(-1)>▶</button><h2>${m.toLocaleDateString('he-IL',{month:'long',year:'numeric'})} / ${hm(f)}${hm(l)!=hm(f)?' - '+hm(l):''}</h2><button class=o onclick=mv(1)>◀</button></div><div class=cal>${c}</div>
+<div class=card><div class=big>${sd.toLocaleDateString('he-IL',{weekday:'long'})} ${fd(V.sel)}</div><div class=m>${hd(sd)} ${hm(sd)}${hs.length?' · '+hs.map(x=>e(x)).join(', '):''}</div></div>
+${L.map(aRow).join('')||'<p class=m>אין תורים ביום זה</p>'}<button class=fab onclick=openAp()>+</button>`}
+
+function openAp(id){
+ const a=D.ap.find(x=>x.id==id)||{appt_date:V.sel,appt_time:'10:00',payment_status:'לא שולם',client_id:V.cid||''},
+ P=Object.entries(D.st.payment_methods||{}).filter(x=>x[1]).map(x=>x[0]);
+ if(a.payment_method&&!P.includes(a.payment_method))P.push(a.payment_method);
+ const o=(l,s)=>l.map(x=>`<option ${x==s?'selected':''}>${e(x)}</option>`).join('');
+ M(`<h2>${id?'עריכת תור':'הוספת תור'}</h2>
+<div class=row><div><label class=m>תאריך</label><input type=date id=ad value="${a.appt_date}"></div><div><label class=m>שעה</label><input type=time id=at value="${a.appt_time.slice(0,5)}"></div></div>
+<label class=m>לקוחה</label><input id=cq placeholder="חיפוש לפי שם או טלפון" oninput=fc()><select id=ac onchange=fc()></select>
+<div id=nc style="display:none"><input id=ncn placeholder="שם הלקוחה החדשה"><input id=ncp type=tel placeholder="טלפון"></div>
+<label class=m>סוג טיפול</label><select id=atr onchange=tp()><option value="">בחרי טיפול</option>${D.tr.filter(t=>t.is_active||t.id==a.treatment_id).map(t=>`<option value="${t.id}" ${t.id==a.treatment_id?'selected':''}>${e(t.name)}</option>`).join('')}</select>
+<label class=m>מחיר</label><input id=apr type=number inputmode=decimal value="${a.price??''}">
+<label class=m>אמצעי תשלום</label><select id=apm><option value="">—</option>${o(P,a.payment_method)}</select>
+<label class=m>סטטוס תשלום</label><select id=aps onchange="$('pa').style.display=this.value=='שולם חלקית'?'block':'none'">${o(['שולם','שולם חלקית','לא שולם','ממתין להעברה'],a.payment_status)}</select>
+<div id=pa style="display:${a.payment_status=='שולם חלקית'?'block':'none'}"><input id=apa type=number inputmode=decimal placeholder="סכום חלקי ששולם" value="${a.partial_amount??''}"></div>
+<label class=m>הערות</label><textarea id=anr rows=3>${e(a.notes)}</textarea>
+<div class=row><button onclick="saveAp('${id||''}')">${id?'שמירת שינויים':'שמירת תור'}</button><button class=o onclick=cl()>ביטול</button>${id?`<button class=d onclick="delAp('${id}')">מחיקה</button>`:''}</div>`);
+ fc(a.client_id)}
+function fc(s){s=s??ac.value;const q=cq.value.trim().toLowerCase();
+ ac.innerHTML='<option value="">בחרי לקוחה</option>'+D.clients.filter(c=>(!c.is_deleted&&(c.name+' '+(c.phone||'')).toLowerCase().includes(q))||c.id==s).map(c=>`<option value="${c.id}">${e(c.name)}${c.phone?' · '+e(c.phone):''}</option>`).join('')+'<option value=new>➕ לקוחה חדשה</option>';
+ ac.value=s;nc.style.display=ac.value=='new'?'block':'none'}
+function tp(){const t=D.tr.find(x=>x.id==atr.value);if(t)apr.value=t.default_price}
+async function saveAp(id){
+ let cid=ac.value;
+ if(!cid||!ad.value||!at.value||!atr.value||(cid=='new'&&!ncn.value.trim()))return alert('חסרים פרטים: לקוחה, תאריך, שעה וסוג טיפול');
+ if(cid=='new'){const{data,error}=await S.from('clients').insert({name:ncn.value.trim(),phone:ncp.value.trim()}).select().single();if(error)return alert(error.message);cid=data.id}
+ const r={client_id:cid,appt_date:ad.value,appt_time:at.value,treatment_id:atr.value,treatment_name:D.tr.find(x=>x.id==atr.value).name,price:+apr.value||0,payment_method:apm.value||null,payment_status:aps.value,partial_amount:aps.value=='שולם חלקית'?(+apa.value||0):null,notes:anr.value},
+ {error}=await(id?S.from('appointments').update(r).eq('id',id):S.from('appointments').insert(r));
+ if(error)return alert(error.message);
+ cl();await load();V.sel=r.appt_date;const d=new Date(r.appt_date+'T12:00');V.m=new Date(d.getFullYear(),d.getMonth(),1);render()}
+async function delAp(id){if(!confirm('למחוק את התור?'))return;await S.from('appointments').delete().eq('id',id);cl();await load();render()}
+
+/* ---------- לקוחות ---------- */
+function vCl(){if(V.cid)return vCd();
+ $('pg').innerHTML=`<h2>ניהול לקוחות</h2><div class=row><input id=q placeholder="חיפוש לפי שם או טלפון" value="${e(V.q)}" oninput="V.q=this.value;lst()"><button style="flex:0 0 auto" onclick=clF()>+ לקוחה חדשה</button></div><div id=ls></div>`;lst()}
+function lst(){const q=V.q.trim().toLowerCase();
+ $('ls').innerHTML=D.clients.filter(c=>!c.is_deleted&&(c.name+' '+(c.phone||'')).toLowerCase().includes(q)).map(c=>{const d=D.ap.filter(a=>a.client_id==c.id).reduce((s,a)=>s+dbt(a),0);
+ return`<div class=it onclick="V.cid='${c.id}';vCl()"><span>${e(c.name)}<br><span class=m>${e(c.phone||'')}</span></span>${d>0?`<span style="color:var(--danger)">חוב ${nf(d)}</span>`:''}</div>`}).join('')||'<p class=m>אין לקוחות</p>'}
+function vCd(){
+ const c=D.clients.find(x=>x.id==V.cid),A=D.ap.filter(a=>a.client_id==c.id).sort((a,b)=>b.appt_date.localeCompare(a.appt_date)),db=A.reduce((s,a)=>s+dbt(a),0);
+ $('pg').innerHTML=`<button class=o onclick="V.cid=null;render()">→ חזרה</button><h2>${e(c.name)}</h2>
+<div class=card><div>📞 ${e(c.phone||'—')}</div><div class=m>${e(c.notes)}</div>${db>0?`<p class=big style="color:var(--danger)">חוב: ${nf(db)}</p>`:''}<br><div class=row><button class=o onclick="clF('${c.id}')">עריכת פרטים</button><button class=d onclick="delCl('${c.id}')">מחיקת לקוחה</button></div></div>
+<h3>היסטוריית טיפולים</h3>${A.map(a=>`<div class=it onclick="openAp('${a.id}')"><span>${fd(a.appt_date)} · ${e(a.treatment_name)}</span><span>${nf(a.price)} ${stg(a.payment_status)}</span></div>`).join('')||'<p class=m>אין טיפולים</p>'}
+<h3>תמונות לפני / אחרי</h3><button onclick="addPh('${c.id}')">הוספת תמונות</button><div id=phs></div>`;showPh(c.id)}
+function clF(id){const c=D.clients.find(x=>x.id==id)||{};
+ M(`<h2>${id?'עריכת לקוחה':'לקוחה חדשה'}</h2><input id=cfn placeholder="שם מלא" value="${e(c.name)}"><input id=cfp type=tel placeholder="טלפון" value="${e(c.phone)}"><textarea id=cfo rows=3 placeholder="הערות">${e(c.notes)}</textarea><div class=row><button onclick="svCl('${id||''}')">שמירה</button><button class=o onclick=cl()>ביטול</button></div>`)}
+async function svCl(id){const r={name:cfn.value.trim(),phone:cfp.value.trim(),notes:cfo.value};if(!r.name)return alert('יש להזין שם');
+ const{data,error}=await(id?S.from('clients').update(r).eq('id',id):S.from('clients').insert(r)).select().single();if(error)return alert(error.message);
+ cl();await load();if(!id)V.cid=data.id;render()}
+async function delCl(id){if(!confirm('למחוק את הלקוחה? התורים וההכנסות שלה יישארו בדוחות כ"לקוחה שנמחקה".'))return;
+ await S.from('clients').update({is_deleted:true}).eq('id',id);V.cid=null;await load();render()}
+const rs=f=>new Promise(r=>{const i=new Image();i.onload=()=>{const k=Math.min(1,1200/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;const g=c.getContext('2d');g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--white');g.fillRect(0,0,c.width,c.height);g.drawImage(i,0,0,c.width,c.height);c.toBlob(r,'image/jpeg',.8)};i.src=URL.createObjectURL(f)});
+async function up(f,p,x){if(!f)return null;const{error}=await S.storage.from('clinic-files').upload(p,await rs(f),{contentType:'image/jpeg',upsert:!!x});if(error)throw error;return p}
+function addPh(cid){M(`<h2>הוספת תמונות</h2><label class=m>תאריך</label><input type=date id=phd value="${td}"><label class=m>קישור לתור (לא חובה)</label><select id=pha><option value="">ללא</option>${D.ap.filter(a=>a.client_id==cid).map(a=>`<option value="${a.id}">${fd(a.appt_date)} ${e(a.treatment_name)}</option>`).join('')}</select><label class=m>לפני</label><input type=file id=phb accept="image/*"><label class=m>אחרי</label><input type=file id=phf accept="image/*"><div class=row><button onclick="savePh('${cid}',this)">שמירה</button><button class=o onclick=cl()>ביטול</button></div>`)}
+async function savePh(cid,b){if(!phb.files[0]&&!phf.files[0])return alert('יש לבחור תמונה');b.disabled=true;b.textContent='מעלה...';
+ try{const u=crypto.randomUUID(),r={client_id:cid,set_date:phd.value,appointment_id:pha.value||null,before_path:await up(phb.files[0],`${cid}/${u}-b.jpg`),after_path:await up(phf.files[0],`${cid}/${u}-a.jpg`)},{error}=await S.from('photo_sets').insert(r);if(error)throw error}
+ catch(x){b.disabled=false;b.textContent='שמירה';return alert(x.message)}
+ cl();await load();render()}
+async function showPh(cid){
+ const L=D.ps.filter(p=>p.client_id==cid),P=L.flatMap(p=>[p.before_path,p.after_path]).filter(Boolean),el=$('phs');if(!el)return;
+ if(!P.length){el.innerHTML='<p class=m>אין תמונות</p>';return}
+ const{data}=await S.storage.from('clinic-files').createSignedUrls(P,3600),U={};(data||[]).forEach(x=>U[x.path]=x.signedUrl);if(!$('phs'))return;
+ el.innerHTML=L.map(p=>`<div class=card><div class=row style="justify-content:space-between"><b>${fd(p.set_date)}</b><button class=d style="flex:0 0 auto" onclick="delPh('${p.id}')">מחיקת סט</button></div><div class=row style="align-items:flex-start">${[['לפני',p.before_path],['אחרי',p.after_path]].map(x=>x[1]?`<div style="text-align:center"><div class=m>${x[0]}</div><img class=ph src="${U[x[1]]}" onclick="big(this.src)"></div>`:'').join('')}</div></div>`).join('')}
+async function delPh(id){if(!confirm('למחוק את סט התמונות?'))return;const p=D.ps.find(x=>x.id==id);
+ await S.storage.from('clinic-files').remove([p.before_path,p.after_path].filter(Boolean));await S.from('photo_sets').delete().eq('id',id);await load();render()}
+
+/* ---------- טיפולים ---------- */
+function vTr(){$('pg').innerHTML=`<h2>שירותים ומחירון</h2>${D.tr.filter(t=>t.is_active).map(t=>`<div class=card><div class=row><input value="${e(t.name)}" onchange="upT('${t.id}',{name:this.value})"><input type=number inputmode=decimal value="${t.default_price}" style="max-width:100px" onchange="upT('${t.id}',{default_price:+this.value})"><button class=d style="flex:0 0 auto" onclick="delT('${t.id}')">✕</button></div></div>`).join('')}
+<div class=card><h3>הוספת טיפול חדש</h3><input id=tn placeholder="שם הטיפול"><input id=tz type=number inputmode=decimal placeholder="מחיר ברירת מחדל"><button onclick=addT()>הוספה</button></div>`}
+async function upT(id,p){await S.from('treatments').update(p).eq('id',id);await load()}
+async function addT(){if(!tn.value.trim())return alert('יש להזין שם טיפול');await S.from('treatments').insert({name:tn.value.trim(),default_price:+tz.value||0,sort_order:D.tr.length+1});await load();render()}
+async function delT(id){if(!confirm('למחוק את הטיפול? תורים קיימים והדוחות לא ישתנו.'))return;await S.from('treatments').update({is_active:false}).eq('id',id);await load();render()}
+
+/* ---------- דוחות ---------- */
+function per(){const d=V.pd,y=d.getFullYear(),m=d.getMonth();return V.pm=='day'?[ds(d),ds(d)]:V.pm=='month'?[ds(new Date(y,m,1)),ds(new Date(y,m+1,0))]:[y+'-01-01',y+'-12-31']}
+const pl=()=>{const d=V.pd;return V.pm=='day'?d.toLocaleDateString('he-IL',{day:'numeric',month:'long',year:'numeric'}):V.pm=='month'?d.toLocaleDateString('he-IL',{month:'long',year:'numeric'}):'שנת '+d.getFullYear()},
+mp=n=>{const d=V.pd;V.pd=V.pm=='day'?new Date(d.getFullYear(),d.getMonth(),d.getDate()+n):V.pm=='month'?new Date(d.getFullYear(),d.getMonth()+n,1):new Date(d.getFullYear()+n,0,1);vRp()},
+gp=(A,k)=>{const o={};A.forEach(x=>{const v=inc(x),n=x[k]||'לא צוין';if(v)o[n]=(o[n]||0)+v});return Object.entries(o).map(([k,v])=>`<div class=it style="cursor:default"><span>${e(k)}</span><b>${nf(v)}</b></div>`).join('')||'<p class=m>אין נתונים</p>'};
+function vRp(){
+ const[a,b]=per(),A=D.ap.filter(x=>x.appt_date>=a&&x.appt_date<=b),E=D.ex.filter(x=>x.expense_date>=a&&x.expense_date<=b),
+ I=A.reduce((s,x)=>s+inc(x),0),O=A.reduce((s,x)=>s+dbt(x),0),X=E.reduce((s,x)=>s+ +x.amount,0),B=(k,t)=>`<button class="${V.rp==k?'':'o'}" onclick="V.rp='${k}';vRp()">${t}</button>`;
+ let h=`<h2>הכנסות והוצאות</h2><div class=row>${B('exp','הוצאות')}${B('inc','הכנסות')}${B('debt','יתרות לגבייה')}</div>
+<div class=card style="text-align:center">רווח (הכנסות פחות הוצאות)<div class=big style="color:${I-X<0?'var(--danger)':'var(--coffee)'}">${nf(I-X)}</div></div>`;
+ if(V.rp=='debt')return $('pg').innerHTML=h+vDb();
+ h+=`<div class=row>${[['day','יומי'],['month','חודשי'],['year','שנתי']].map(x=>`<button class="${V.pm==x[0]?'':'o'}" onclick="V.pm='${x[0]}';vRp()">${x[1]}</button>`).join('')}</div>
+<div class=nv style="margin:10px 0"><button class=o onclick=mp(-1)>▶</button><b>${pl()}</b><button class=o onclick=mp(1)>◀</button></div>`;
+ if(V.rp=='inc')h+=`<div class=row><div class=card>הכנסה<div class=big>${nf(I)}</div></div><div class=card>יתרה פתוחה לגבייה<div class=big>${nf(O)}</div></div></div><h3>לפי אמצעי תשלום</h3><div class=card>${gp(A,'payment_method')}</div><h3>לפי סוג טיפול</h3><div class=card>${gp(A,'treatment_name')}</div>`;
+ else h+=`<div class=card>סך ההוצאות<div class=big>${nf(X)}</div></div>${E.map(x=>`<div class=it style="cursor:default"><span>${fd(x.expense_date)} · ${e(x.name)}</span><span>${nf(x.amount)} <button class=d style="padding:4px 10px" onclick="delEx('${x.id}')">✕</button></span></div>`).join('')}
+<div class=card><h3>הוספת הוצאה</h3><input id=xn placeholder="שם ההוצאה"><input id=xa type=number inputmode=decimal placeholder="סכום"><input id=xd type=date value="${td}"><button onclick=addEx()>הוספת הוצאה</button></div>`;
+ h+=`<h3>ייצוא הדוח (${pl()})</h3><div class=card><select id=xt><option value=b>הכנסות והוצאות</option><option value=i>הכנסות</option><option value=x>הוצאות</option></select><div class=row><button onclick="exp_('x')">Excel</button><button onclick="exp_('p')">PDF</button></div></div>`;
+ $('pg').innerHTML=h}
+function vDb(){const g={};D.ap.forEach(a=>{const d=dbt(a);if(d>0){const x=g[a.client_id]=g[a.client_id]||{n:cn(a.client_id),t:0,l:[]};x.t+=d;x.l.push(a)}});
+ const L=Object.values(g),T=L.reduce((s,x)=>s+x.t,0);
+ return `${L.map(x=>`<details class=card><summary class=row style="justify-content:space-between"><b>${e(x.n)}</b><b style="color:var(--danger);flex:0 0 auto">${nf(x.t)}</b></summary>${x.l.map(a=>`<div class=it onclick="openAp('${a.id}')"><span>${fd(a.appt_date)} · ${e(a.treatment_name)}</span><span>${nf(dbt(a))}</span></div>`).join('')}</details>`).join('')||'<p class=m>אין יתרות פתוחות 🎉</p>'}<div class=card style="text-align:center">סך כל החובות<div class=big>${nf(T)}</div></div>`}
+async function addEx(){if(!xn.value.trim()||!xa.value)return alert('יש להזין שם וסכום');await S.from('expenses').insert({name:xn.value.trim(),amount:+xa.value,expense_date:xd.value||td});await load();vRp()}
+async function delEx(id){if(!confirm('למחוק את ההוצאה?'))return;await S.from('expenses').delete().eq('id',id);await load();vRp()}
+async function exp_(f){
+ const[a,b]=per(),t=xt.value,A=D.ap.filter(x=>x.appt_date>=a&&x.appt_date<=b),E=D.ex.filter(x=>x.expense_date>=a&&x.expense_date<=b),
+ R=A.map(x=>({'תאריך':fd(x.appt_date),'לקוחה':cn(x.client_id),'טיפול':x.treatment_name,'מחיר':+x.price,'אמצעי תשלום':x.payment_method||'','סטטוס':x.payment_status,'שולם':inc(x),'יתרה לגבייה':dbt(x)})),
+ X=E.map(x=>({'תאריך':fd(x.expense_date),'הוצאה':x.name,'סכום':+x.amount})),
+ I=A.reduce((s,x)=>s+inc(x),0),O=E.reduce((s,x)=>s+ +x.amount,0),Sm=[{'הכנסות':I,'הוצאות':O,'רווח':I-O}];
+ if(f=='x'){const wb=XLSX.utils.book_new(),ad_=(r,n)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),n);
+  if(t!='x')ad_(R,'הכנסות');if(t!='i')ad_(X,'הוצאות');if(t=='b')ad_(Sm,'סיכום');XLSX.writeFile(wb,`דוח_${a}_${b}.xlsx`);return}
+ const tb=r=>r.length?`<table><tr>${Object.keys(r[0]).map(k=>`<th>${k}</th>`).join('')}</tr>${r.map(x=>`<tr>${Object.values(x).map(v=>`<td>${e(v)}</td>`).join('')}</tr>`).join('')}</table>`:'<p>אין נתונים</p>';
+ let lg='';if(D.st.logo_path){const{data}=await S.storage.from('clinic-files').createSignedUrl(D.st.logo_path,300);if(data)lg=`<img src="${data.signedUrl}" style="height:60px">`}
+ $('pr').innerHTML=`${lg}<h2>${e(D.st.clinic_name)} — דוח ${pl()}</h2>${t!='x'?'<h3>הכנסות</h3>'+tb(R):''}${t!='i'?'<h3>הוצאות</h3>'+tb(X):''}<h3>סיכום</h3>${tb(Sm)}`;
+ setTimeout(()=>window.print(),600)}
+
+/* ---------- הגדרות ---------- */
+async function sv(p){await S.from('settings').update(p).eq('id',1);await load()}
+function wh(i,k,v){const w=JSON.parse(JSON.stringify(D.st.working_hours));w[i][k]=v;sv({working_hours:w})}
+async function pmt(k){const p={...D.st.payment_methods};p[k]=!p[k];await sv({payment_methods:p});vSt()}
+async function upLg(f){if(!f)return;try{await up(f,'logo/logo.jpg',1);await sv({logo_path:'logo/logo.jpg'});V.lu=null;vSt()}catch(x){alert(x.message)}}
+function vSt(){const s=D.st,w=s.working_hours||{};
+ $('pg').innerHTML=`<h2>הגדרות</h2><div class=card><label class=m>שם הקליניקה</label><input value="${e(s.clinic_name)}" onchange="sv({clinic_name:this.value})"><label class=m>לוגו</label><div id=lg></div><input type=file accept="image/*" onchange=upLg(this.files[0])></div>
+<div class=card><h3>ימים ושעות פעילות</h3>${['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'].map((n,i)=>{const x=w[i]||{};return`<div class=row><label style="flex:0 0 80px"><input type=checkbox style="width:auto" ${x.active?'checked':''} onchange="wh(${i},'active',this.checked)"> ${n}</label><input type=time value="${x.open}" onchange="wh(${i},'open',this.value)"><input type=time value="${x.close}" onchange="wh(${i},'close',this.value)"></div>`}).join('')}</div>
+<div class=card><h3>אמצעי תשלום מקובלים</h3>${Object.entries(s.payment_methods||{}).map(([k,v])=>`<button class="pill ${v?'':'o'}" onclick="pmt('${k}')">${k}</button>`).join('')}</div>
+<button class=o onclick="S.auth.signOut().then(login)">התנתקות</button><p class=m style="margin-top:14px">גרסה 5 (עיצוב קפה)</p>`;
+ if(s.logo_path)S.storage.from('clinic-files').createSignedUrl(s.logo_path,3600).then(({data})=>{if(data&&$('lg'))$('lg').innerHTML=`<img src="${data.signedUrl}" style="height:60px;margin-bottom:8px">`})}
+init();
+</script></body></html>
